@@ -1,0 +1,13 @@
+[project]
+name = "coach-ai"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "dotenv>=0.9.9",
+    "llama-index>=0.12.37",
+    "llama-index-tools-mcp>=0.1.3",
+    "loguru>=0.7.3",
+    "mcp[cli]>=1.9.0",
+]
