@@ -1,4 +1,4 @@
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from dotenv import load_dotenv
 from tools.get_athlete_profile import get_athlete_profile
 from tools.get_athlete_stats import get_athlete_stats_tool
@@ -15,7 +15,7 @@ from tools.get_route import get_route_tool
 load_dotenv()
 # Initialize FastMCP server
 
-mcp = FastMCP(name="Strava Server", version="1.0.0")
+mcp = FastMCP(name="Strava Server")
 
 # Register tools
 @mcp.tool(
@@ -30,7 +30,7 @@ def get_athlete_profile_tool():
     name="get-athlete-stats",
     description="Fetches the activity statistics (recent, YTD, all-time) for a specific athlete using their ID. Requires the athlete_id obtained from the get-athlete-profile tool."
 )
-def get_athlete_stats_tool(athlete_id: int):
+def get_athlete_stats_mcp_tool(athlete_id: int):
     return get_athlete_stats_tool(athlete_id=athlete_id)
 
 
@@ -38,7 +38,7 @@ def get_athlete_stats_tool(athlete_id: int):
     name="get-recent-activities",
     description="Fetches the most recent activities for the authenticated athlete. Returns a list of activities with details like distance, moving time, and type.",
 )
-def get_recent_activity_tool(per_page: int = 100):
+def get_recent_activity_mcp_tool(per_page: int = 100):
     return get_recent_activities_tool(per_page=per_page)
 
 
@@ -46,7 +46,7 @@ def get_recent_activity_tool(per_page: int = 100):
     name="get-activity-details",
     description="Fetches detailed information about a specific activity using its ID. Returns data like distance, moving time, and type.",
 )
-def get_activity_details_tool(activity_id: int):
+def get_activity_details_mcp_tool(activity_id: int):
     return get_activity_details(activity_id=activity_id)
 
 
@@ -54,7 +54,7 @@ def get_activity_details_tool(activity_id: int):
     name="get-activity-streams",
     description=get_activity_streams_descriptions
 )
-def get_activity_streams_tool(activity_id: int, types: str = ["latlng","altitude","heartrate","cadence","watts"], resolution: str = 'medium', series_type: str = "distance"):
+def get_activity_streams_mcp_tool(activity_id: int, types: list = ["latlng","altitude","heartrate","cadence","watts"], resolution: str = 'medium', series_type: str = "distance"):
     return get_activity_streams(activity_id=activity_id, types=types)
 
 
@@ -62,7 +62,7 @@ def get_activity_streams_tool(activity_id: int, types: str = ["latlng","altitude
     name="get-athlete-zones",
     description="Fetches the athlete's heart rate and power zones. Useful for understanding training intensities and performance metrics.",
 )
-def get_athlete_zones_tool():
+def get_athlete_zones_mcp_tool():
     return get_athlete_zones()
 
 
