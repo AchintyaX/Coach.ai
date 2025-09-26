@@ -49,6 +49,9 @@ AZURE_DEPLOYMENT_NAME=your_deployment_name
 AZURE_MODEL_NAME=your_model_name
 AZURE_API_VERSION=2024-12-01-preview
 
+# Tavily Search API Configuration
+TAVILY_API_KEY=your_tavily_api_key_here
+
 # Strava API Configuration (populated by setup_auth.py)
 STRAVA_CLIENT_ID=your_strava_client_id
 STRAVA_CLIENT_SECRET=your_strava_client_secret
@@ -84,7 +87,8 @@ Once running, you can interact with the coach by typing commands like:
 
 The system uses:
 - **LlamaIndex ReAct Agent**: For intelligent reasoning and tool use
-- **MCP (Model Context Protocol)**: For accessing Strava data via server
+- **MCP (Model Context Protocol)**: For accessing Strava data and web search capabilities
+- **Tavily Search**: For real-time web search and information retrieval
 - **Azure OpenAI**: For the underlying language model
 - **Custom Prompts**: Fitness coach persona with evidence-based approach
 

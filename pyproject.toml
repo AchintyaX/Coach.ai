@@ -13,4 +13,5 @@ dependencies = [
     "llama-index-tools-duckduckgo>=0.4.0",
     "loguru>=0.7.3",
     "mcp[cli]>=1.9.0",
+    "pytest>=8.4.2",
 ]

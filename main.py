@@ -1,5 +1,4 @@
 from llama_index.tools.mcp import BasicMCPClient, McpToolSpec
-from llama_index.tools.duckduckgo import DuckDuckGoSearchToolSpec
 from llama_index.core.agent import ReActAgent
 from llama_index.llms.azure_openai import AzureOpenAI
 from llama_index.core.memory import Memory
@@ -15,16 +14,18 @@ from prompts import FITNESS_COACH_SYSTEM_PROMPT
 
 async def load_tools():
     # Load MCP tools (Strava)
-    mcp_client = BasicMCPClient("http://127.0.0.1:8000/sse")
-    mcp_tool = McpToolSpec(client=mcp_client)
-    mcp_tools = await mcp_tool.to_tool_list_async()
+    strava_mcp_client = BasicMCPClient("http://127.0.0.1:8000/sse")
+    strava_mcp_tool = McpToolSpec(client=strava_mcp_client)
+    strava_tools = await strava_mcp_tool.to_tool_list_async()
     
-    # Load DuckDuckGo search tools
-    ddg_tool = DuckDuckGoSearchToolSpec()
-    ddg_tools = ddg_tool.to_tool_list()
+    # Load Tavily MCP tools (Search)
+    tavily_api_key = os.getenv("TAVILY_API_KEY")
+    tavily_mcp_client = BasicMCPClient(f"https://mcp.tavily.com/mcp/?tavilyApiKey={tavily_api_key}")
+    tavily_mcp_tool = McpToolSpec(client=tavily_mcp_client)
+    tavily_tools = await tavily_mcp_tool.to_tool_list_async()
     
     # Combine all tools
-    all_tools = mcp_tools + ddg_tools
+    all_tools = strava_tools + tavily_tools
     
     # Log all tools
     for tool in all_tools:
@@ -53,7 +54,7 @@ def create_agent(tools, llm):
     fitness_coach_prompt = PromptTemplate(FITNESS_COACH_SYSTEM_PROMPT)
     
     # Update the agent with our custom system prompt using the correct key
-    #agent.update_prompts({"react_header": fitness_coach_prompt})
+    agent.update_prompts({"react_header": fitness_coach_prompt})
     
     return agent
 
