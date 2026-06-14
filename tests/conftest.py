@@ -181,56 +181,6 @@ def mock_strava_stats(sample_stats):
     return stats
 
 
-@pytest.fixture
-def mock_llm():
-    """Mock LLM for testing"""
-    llm = Mock()
-    llm.predict = Mock(return_value="Test LLM response")
-    return llm
-
-
-@pytest.fixture
-def mock_agent():
-    """Mock agent for testing"""
-    agent = Mock()
-    agent.run = Mock(return_value="Test agent response")
-    return agent
-
-
-@pytest.fixture
-def mock_memory():
-    """Mock memory for testing"""
-    memory = Mock()
-    memory.get = Mock(return_value=None)
-    memory.put = Mock()
-    return memory
-
-
-@pytest.fixture
-def mock_tools():
-    """Mock tools list for testing"""
-    tools = []
-    for i in range(3):
-        tool = Mock()
-        tool.metadata.name = f"test_tool_{i+1}"
-        tool.metadata.description = f"Test tool {i+1} description"
-        tools.append(tool)
-    return tools
-
-
-# Async fixtures for testing async functions
-@pytest.fixture
-async def async_mock_tools():
-    """Async mock tools for testing"""
-    tools = []
-    for i in range(2):
-        tool = Mock()
-        tool.metadata.name = f"async_tool_{i+1}"
-        tool.metadata.description = f"Async tool {i+1} description"
-        tools.append(tool)
-    return tools
-
-
 # Utility functions for tests
 def create_mock_response(status_code=200, json_data=None, headers=None):
     """Create a mock HTTP response"""

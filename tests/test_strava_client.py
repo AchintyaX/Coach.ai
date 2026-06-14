@@ -4,7 +4,7 @@ import requests
 from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime
 from pydantic import ValidationError
-from strava_client import (
+from strava.strava_client import (
     StravaApiClient,
     StravaActivity,
     StravaAthlete,
@@ -323,7 +323,7 @@ class TestApiMethods:
         )
     
     @patch.object(strava_api, 'get')
-    @patch('strava_client.refresh_access_token')
+    @patch('strava.strava_client.refresh_access_token')
     def test_get_recent_activities_token_refresh(self, mock_refresh, mock_get, sample_activity_data):
         """Test recent activities with token refresh on 401 error"""
         # First call raises 401, second call succeeds
@@ -366,7 +366,7 @@ class TestApiMethods:
         )
     
     @patch.object(strava_api, 'get')
-    @patch('strava_client.refresh_access_token')
+    @patch('strava.strava_client.refresh_access_token')
     def test_get_authenticated_athlete_token_refresh(self, mock_refresh, mock_get, sample_athlete_data):
         """Test authenticated athlete with token refresh on 401 error"""
         mock_error = requests.HTTPError()
@@ -399,7 +399,7 @@ class TestApiMethods:
         )
     
     @patch.object(strava_api, 'get')
-    @patch('strava_client.refresh_access_token')
+    @patch('strava.strava_client.refresh_access_token')
     def test_get_athlete_stats_token_refresh(self, mock_refresh, mock_get, sample_stats_data):
         """Test athlete stats with token refresh on 401 error"""
         mock_error = requests.HTTPError()
@@ -470,7 +470,7 @@ class TestStravaClientIntegration:
         with pytest.raises(requests.HTTPError):
             get_athlete_stats('test_token', athlete_id=12345)
     
-    @patch('strava_client.refresh_access_token')
+    @patch('strava.strava_client.refresh_access_token')
     @patch.object(strava_api, 'get')
     def test_token_refresh_consistency(self, mock_get, mock_refresh, sample_athlete_data):
         """Test that token refresh works consistently across all methods"""

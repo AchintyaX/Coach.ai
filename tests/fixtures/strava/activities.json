@@ -1,0 +1,50 @@
+{
+  "activities": [
+    {
+      "id": 19283746,
+      "name": "Easy Morning Run",
+      "type": "Run",
+      "sport_type": "Run",
+      "start_date": "2026-06-13T06:30:00Z",
+      "start_date_local": "2026-06-13T06:30:00Z",
+      "distance": 7900.0,
+      "moving_time": 2820,
+      "elapsed_time": 2880,
+      "total_elevation_gain": 62.0,
+      "average_heartrate": 154.0,
+      "max_heartrate": 168.0,
+      "average_speed": 2.8014,
+      "average_cadence": 84.2
+    },
+    {
+      "id": 19283600,
+      "name": "Strength - Lower Body",
+      "type": "WeightTraining",
+      "sport_type": "WeightTraining",
+      "start_date": "2026-06-12T17:15:00Z",
+      "start_date_local": "2026-06-12T17:15:00Z",
+      "distance": 0.0,
+      "moving_time": 2400,
+      "elapsed_time": 2400,
+      "total_elevation_gain": 0.0,
+      "average_heartrate": 118.0,
+      "max_heartrate": 142.0
+    },
+    {
+      "id": 19282190,
+      "name": "Recovery Jog",
+      "type": "Run",
+      "sport_type": "Run",
+      "start_date": "2026-06-10T07:00:00Z",
+      "start_date_local": "2026-06-10T07:00:00Z",
+      "distance": 5200.0,
+      "moving_time": 2100,
+      "elapsed_time": 2160,
+      "total_elevation_gain": 31.0,
+      "average_heartrate": 138.0,
+      "max_heartrate": 150.0,
+      "average_speed": 2.4762,
+      "average_cadence": 80.5
+    }
+  ]
+}

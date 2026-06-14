@@ -1,0 +1,22 @@
+{
+  "userProfilePK": 12345678,
+  "calendarDate": "2026-06-13",
+  "sleepTimeSeconds": 25620,
+  "sleepStartTimestampLocal": "2026-06-12T22:48:00.0",
+  "sleepEndTimestampLocal": "2026-06-13T06:05:00.0",
+  "deepSleepSeconds": 5400,
+  "lightSleepSeconds": 14400,
+  "remSleepSeconds": 4620,
+  "awakeSleepSeconds": 1200,
+  "averageSpO2Value": 96.0,
+  "averageRespirationValue": 13.8,
+  "restingHeartRate": 47,
+  "sleepScores": {
+    "overall": {
+      "value": 61,
+      "qualifierKey": "FAIR"
+    },
+    "totalDuration": {"value": 65, "qualifierKey": "FAIR"},
+    "remPercentage": {"value": 70, "qualifierKey": "GOOD"}
+  }
+}

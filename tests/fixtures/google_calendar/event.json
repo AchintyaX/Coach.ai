@@ -1,0 +1,14 @@
+{
+  "id": "evt_8a91f2",
+  "status": "confirmed",
+  "summary": "Coach AI: Z2 Aerobic Run",
+  "description": "Plan: 45 min easy, keep it conversational (HR < 150). Intent: Z2 aerobic base.\n\nIntent: Z2 aerobic base\nRationale: Easy aerobic day after yesterday's strength session",
+  "location": "",
+  "start": {"dateTime": "2026-06-13T06:30:00-04:00", "timeZone": "America/New_York"},
+  "end": {"dateTime": "2026-06-13T07:15:00-04:00", "timeZone": "America/New_York"},
+  "creator": {"email": "athlete@example.com", "self": true},
+  "organizer": {"email": "athlete@example.com", "self": true},
+  "created": "2026-06-12T20:05:00Z",
+  "updated": "2026-06-12T20:05:00Z",
+  "htmlLink": "https://www.google.com/calendar/event?eid=evt_8a91f2"
+}

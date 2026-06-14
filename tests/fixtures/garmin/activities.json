@@ -1,0 +1,53 @@
+{
+  "activities": [
+    {
+      "activity_id": "19283746",
+      "activityName": "Z2 Aerobic Base Run",
+      "type": "running",
+      "date": "2026-06-13",
+      "start_date_local": "2026-06-13T06:30:00.0",
+      "duration_min": 47,
+      "distance_km": 7.9,
+      "avg_hr": 154,
+      "max_hr": 168,
+      "elevation_gain_m": 62,
+      "aerobic_training_effect": 2.8,
+      "anaerobic_training_effect": 0.4,
+      "training_effect": {"aerobic": 2.8, "anaerobic": 0.4},
+      "execution_score": "completed",
+      "calories": 512
+    },
+    {
+      "activity_id": "19283600",
+      "activityName": "Strength - Lower Body",
+      "type": "strength",
+      "date": "2026-06-12",
+      "start_date_local": "2026-06-12T17:15:00.0",
+      "duration_min": 40,
+      "distance_km": 0,
+      "avg_hr": 118,
+      "max_hr": 142,
+      "aerobic_training_effect": 1.1,
+      "anaerobic_training_effect": 1.6,
+      "training_effect": {"aerobic": 1.1, "anaerobic": 1.6},
+      "execution_score": "completed",
+      "calories": 280
+    },
+    {
+      "activity_id": "19282190",
+      "activityName": "Recovery Jog",
+      "type": "running",
+      "date": "2026-06-10",
+      "start_date_local": "2026-06-10T07:00:00.0",
+      "duration_min": 35,
+      "distance_km": 5.2,
+      "avg_hr": 138,
+      "max_hr": 150,
+      "aerobic_training_effect": 1.6,
+      "anaerobic_training_effect": 0.1,
+      "training_effect": {"aerobic": 1.6, "anaerobic": 0.1},
+      "execution_score": "completed",
+      "calories": 340
+    }
+  ]
+}

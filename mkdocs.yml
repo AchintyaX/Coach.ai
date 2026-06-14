@@ -1,0 +1,66 @@
+site_name: Coach AI
+site_description: "Your coach, wherever your agent lives."
+site_url: https://achintyax.github.io/Coach.ai/
+repo_url: https://github.com/AchintyaX/Coach.ai
+repo_name: AchintyaX/Coach.ai
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - content.code.copy
+    - content.action.edit
+    - search.suggest
+    - search.highlight
+    - toc.follow
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Concepts:
+      - Architecture & principles: concepts/architecture.md
+      - Capabilities & paths: concepts/capabilities.md
+  - Skills: skills.md
+  - Source integrations:
+      - Garmin: sources/garmin.md
+      - Strava + Calendar: sources/strava-calendar.md
+  - Daily workflow: workflow.md
+  - Development & testing: development.md
+  - Roadmap: roadmap.md

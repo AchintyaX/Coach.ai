@@ -1,0 +1,22 @@
+{
+  "scheduledWorkouts": [
+    {
+      "workoutId": "wko_88213",
+      "workoutName": "Z2 Aerobic Base Run",
+      "scheduledDate": "2026-06-13",
+      "sport": "running",
+      "estimatedDurationMin": 45,
+      "description": "45 min easy run, keep HR < 150",
+      "status": "scheduled"
+    },
+    {
+      "workoutId": "wko_88227",
+      "workoutName": "Strength - Lower Body",
+      "scheduledDate": "2026-06-14",
+      "sport": "strength_training",
+      "estimatedDurationMin": 40,
+      "description": "Lower body strength: squats, lunges, calf raises",
+      "status": "scheduled"
+    }
+  ]
+}

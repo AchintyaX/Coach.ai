@@ -1,0 +1,14 @@
+{
+  "userProfilePK": 12345678,
+  "calendarDate": "2026-06-13",
+  "charged": 62,
+  "drained": 38,
+  "startTimestampLocal": "2026-06-13T00:00:00.0",
+  "endTimestampLocal": "2026-06-13T23:59:59.0",
+  "bodyBatteryValuesArray": [
+    [1718256000000, 45],
+    [1718270400000, 78],
+    [1718295600000, 60]
+  ],
+  "currentLevel": 60
+}

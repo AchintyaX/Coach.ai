@@ -62,9 +62,9 @@ class TestGetAthleteProfile:
     
     def test_get_athlete_profile_success(self, mock_env, mock_athlete_data):
         """Test successful athlete profile retrieval"""
-        from tools.get_athlete_profile import get_athlete_profile
+        from strava.get_athlete_profile import get_athlete_profile
         
-        with patch('tools.get_athlete_profile.get_authenticated_athlete') as mock_get_athlete:
+        with patch('strava.get_athlete_profile.get_authenticated_athlete') as mock_get_athlete:
             # Create a mock athlete object with attributes
             mock_athlete = Mock()
             for key, value in mock_athlete_data.items():
@@ -85,7 +85,7 @@ class TestGetAthleteProfile:
     
     def test_get_athlete_profile_missing_token(self):
         """Test athlete profile with missing access token"""
-        from tools.get_athlete_profile import get_athlete_profile
+        from strava.get_athlete_profile import get_athlete_profile
         
         with patch.dict(os.environ, {}, clear=True):
             result = get_athlete_profile()
@@ -96,9 +96,9 @@ class TestGetAthleteProfile:
     
     def test_get_athlete_profile_api_error(self, mock_env):
         """Test athlete profile with API error"""
-        from tools.get_athlete_profile import get_athlete_profile
+        from strava.get_athlete_profile import get_athlete_profile
         
-        with patch('tools.get_athlete_profile.get_authenticated_athlete') as mock_get_athlete:
+        with patch('strava.get_athlete_profile.get_authenticated_athlete') as mock_get_athlete:
             mock_get_athlete.side_effect = requests.HTTPError("API Error")
             
             result = get_athlete_profile()
@@ -113,9 +113,9 @@ class TestGetRecentActivities:
     
     def test_get_recent_activities_success(self, mock_env, mock_activity_data):
         """Test successful recent activities retrieval"""
-        from tools.get_recent_activities import get_recent_activities_tool
+        from strava.get_recent_activities import get_recent_activities_tool
         
-        with patch('tools.get_recent_activities.get_recent_activities') as mock_get_activities:
+        with patch('strava.get_recent_activities.get_recent_activities') as mock_get_activities:
             # Create mock activity objects
             mock_activities = []
             for activity_data in mock_activity_data:
@@ -139,9 +139,9 @@ class TestGetRecentActivities:
     
     def test_get_recent_activities_empty_result(self, mock_env):
         """Test recent activities with no results"""
-        from tools.get_recent_activities import get_recent_activities_tool
+        from strava.get_recent_activities import get_recent_activities_tool
         
-        with patch('tools.get_recent_activities.get_recent_activities') as mock_get_activities:
+        with patch('strava.get_recent_activities.get_recent_activities') as mock_get_activities:
             mock_get_activities.return_value = []
             
             result = get_recent_activities_tool()
@@ -151,7 +151,7 @@ class TestGetRecentActivities:
     
     def test_get_recent_activities_missing_token(self):
         """Test recent activities with missing access token"""
-        from tools.get_recent_activities import get_recent_activities_tool
+        from strava.get_recent_activities import get_recent_activities_tool
         
         with patch.dict(os.environ, {}, clear=True):
             result = get_recent_activities_tool()
@@ -166,7 +166,7 @@ class TestGetAthleteStats:
     
     def test_get_athlete_stats_success(self, mock_env):
         """Test successful athlete stats retrieval"""
-        from tools.get_athlete_stats import get_athlete_stats_tool
+        from strava.get_athlete_stats import get_athlete_stats_tool
         
         mock_stats_data = {
             'biggest_ride_distance': 100000.0,
@@ -182,17 +182,15 @@ class TestGetAthleteStats:
             'all_swim_totals': {'count': 100, 'distance': 100000}
         }
         
-        with patch('tools.get_athlete_stats.get_athlete_stats') as mock_get_stats:
-            mock_stats = Mock()
-            for key, value in mock_stats_data.items():
-                setattr(mock_stats, key, value)
-            mock_get_stats.return_value = mock_stats
-            
+        with patch('strava.get_athlete_stats.fetch_athlete_stats') as mock_get_stats:
+            mock_get_stats.return_value = mock_stats_data
+
             result = get_athlete_stats_tool(athlete_id=12345)
-            
+
             assert 'content' in result
-            assert 'Statistics for Athlete ID: 12345' in result['content'][0]['text']
-            assert 'Biggest Ride Distance' in result['content'][0]['text']
+            assert '📊' in result['content'][0]['text']
+            assert 'Strava Stats' in result['content'][0]['text']
+            assert 'Biggest Ride' in result['content'][0]['text']
 
 
 class TestGetActivityDetails:
@@ -200,7 +198,7 @@ class TestGetActivityDetails:
     
     def test_get_activity_details_success(self, mock_env):
         """Test successful activity details retrieval"""
-        from tools.get_activity_details import get_activity_details
+        from strava.get_activity_details import get_activity_details
         
         mock_activity_detail = {
             'id': 12345,
@@ -210,16 +208,21 @@ class TestGetActivityDetails:
             'elapsed_time': 1900,
             'total_elevation_gain': 50.0,
             'type': 'Run',
+            'sport_type': 'Run',
+            'start_date_local': '2023-09-26T06:00:00Z',
             'start_date': '2023-09-26T06:00:00Z',
             'average_speed': 2.78,
             'max_speed': 4.5
         }
-        
-        with patch('strava_client.strava_api.get') as mock_api_get:
-            mock_api_get.return_value = mock_activity_detail
-            
+
+        with patch('strava.get_activity_details.requests.get') as mock_requests_get:
+            mock_response = Mock()
+            mock_response.json.return_value = mock_activity_detail
+            mock_response.raise_for_status.return_value = None
+            mock_requests_get.return_value = mock_response
+
             result = get_activity_details(activity_id=12345)
-            
+
             assert 'content' in result
             assert 'Morning Run' in result['content'][0]['text']
             assert 'ID: 12345' in result['content'][0]['text']
@@ -230,7 +233,7 @@ class TestGetAthleteZones:
     
     def test_get_athlete_zones_success(self, mock_env):
         """Test successful athlete zones retrieval"""
-        from tools.get_athlete_zones import get_athlete_zones
+        from strava.get_athlete_zones import get_athlete_zones
         
         mock_zones_data = {
             'heart_rate': {
@@ -250,14 +253,14 @@ class TestGetAthleteZones:
             }
         }
         
-        with patch('strava_client.strava_api.get') as mock_api_get:
+        with patch('strava.strava_client.strava_api.get') as mock_api_get:
             mock_api_get.return_value = mock_zones_data
-            
+
             result = get_athlete_zones()
-            
-            assert 'content' in result
-            assert 'Heart Rate Zones' in result['content'][0]['text']
-            assert 'Power Zones' in result['content'][0]['text']
+
+            assert 'formatted' in result
+            assert 'Heart Rate Zones' in result['formatted']
+            assert 'Power Zones' in result['formatted']
 
 
 class TestGetActivityStreams:
@@ -265,7 +268,7 @@ class TestGetActivityStreams:
     
     def test_get_activity_streams_success(self, mock_env):
         """Test successful activity streams retrieval"""
-        from tools.get_activity_streams import get_activity_streams
+        from strava.get_activity_streams import get_activity_streams
         
         mock_streams_data = [
             {
@@ -284,15 +287,20 @@ class TestGetActivityStreams:
             }
         ]
         
-        with patch('strava_client.strava_api.get') as mock_api_get:
-            mock_api_get.return_value = mock_streams_data
-            
+        with patch('strava.get_activity_streams.requests.get') as mock_requests_get:
+            mock_response = Mock()
+            mock_response.json.return_value = mock_streams_data
+            mock_response.raise_for_status.return_value = None
+            mock_requests_get.return_value = mock_response
+
             result = get_activity_streams(activity_id=12345, types=['heartrate', 'latlng'])
-            
+
             assert 'content' in result
-            assert 'Activity Streams for ID: 12345' in result['content'][0]['text']
-            assert 'Heart Rate' in result['content'][0]['text']
-            assert 'GPS Coordinates' in result['content'][0]['text']
+            stream_data = result['content'][0]['text']
+            assert 'heartrate' in stream_data['metadata']['available_types']
+            assert 'latlng' in stream_data['metadata']['available_types']
+            assert 'heartrate' in stream_data['streams']
+            assert 'latlng' in stream_data['streams']
 
 
 @pytest.mark.integration
@@ -301,25 +309,28 @@ class TestToolsIntegration:
     
     def test_athlete_profile_to_stats_workflow(self, mock_env, mock_athlete_data):
         """Test workflow from getting athlete profile to getting stats"""
-        from tools.get_athlete_profile import get_athlete_profile
-        from tools.get_athlete_stats import get_athlete_stats_tool
+        from strava.get_athlete_profile import get_athlete_profile
+        from strava.get_athlete_stats import get_athlete_stats_tool
         
-        with patch('tools.get_athlete_profile.get_authenticated_athlete') as mock_get_athlete:
+        with patch('strava.get_athlete_profile.get_authenticated_athlete') as mock_get_athlete:
             mock_athlete = Mock()
             mock_athlete.id = 12345
             mock_athlete.firstname = 'John'
             mock_athlete.lastname = 'Doe'
+            mock_athlete.city = None
+            mock_athlete.state = None
+            mock_athlete.country = None
             mock_get_athlete.return_value = mock_athlete
-            
+
             # Get athlete profile first
             profile_result = get_athlete_profile()
             assert 'ID: 12345' in profile_result['content'][0]['text']
-            
+
             # Use athlete ID for stats
-            with patch('tools.get_athlete_stats.get_athlete_stats') as mock_get_stats:
-                mock_stats = Mock()
-                mock_stats.recent_run_totals = {'count': 10, 'distance': 50000}
+            with patch('strava.get_athlete_stats.fetch_athlete_stats') as mock_get_stats:
+                mock_stats = {'recent_run_totals': {'count': 10, 'distance': 50000}}
                 mock_get_stats.return_value = mock_stats
-                
+
                 stats_result = get_athlete_stats_tool(athlete_id=12345)
-                assert 'Statistics for Athlete ID: 12345' in stats_result['content'][0]['text']
+                assert '📊' in stats_result['content'][0]['text']
+                assert 'Runs' in stats_result['content'][0]['text']

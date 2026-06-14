@@ -1,0 +1,14 @@
+{
+  "id": "AAMkAGI1AAA-evt-8a91f2",
+  "subject": "Coach AI: Z2 Aerobic Run",
+  "body": {
+    "contentType": "text",
+    "content": "Plan: 45 min easy, keep it conversational (HR < 150). Intent: Z2 aerobic base.\n\nIntent: Z2 aerobic base\nRationale: Easy aerobic day after yesterday's strength session"
+  },
+  "start": {"dateTime": "2026-06-13T06:30:00.0000000", "timeZone": "Eastern Standard Time"},
+  "end": {"dateTime": "2026-06-13T07:15:00.0000000", "timeZone": "Eastern Standard Time"},
+  "isReminderOn": true,
+  "createdDateTime": "2026-06-12T20:05:00Z",
+  "lastModifiedDateTime": "2026-06-12T20:05:00Z",
+  "webLink": "https://outlook.office365.com/calendar/item/AAMkAGI1AAA-evt-8a91f2"
+}

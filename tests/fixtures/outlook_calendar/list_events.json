@@ -1,0 +1,30 @@
+{
+  "value": [
+    {
+      "id": "AAMkAGI1AAA-evt-8a91f2",
+      "subject": "Coach AI: Z2 Aerobic Run",
+      "body": {
+        "contentType": "text",
+        "content": "Plan: 45 min easy, keep it conversational (HR < 150). Intent: Z2 aerobic base.\n\nIntent: Z2 aerobic base\nRationale: Easy aerobic day after yesterday's strength session"
+      },
+      "start": {"dateTime": "2026-06-13T06:30:00.0000000", "timeZone": "Eastern Standard Time"},
+      "end": {"dateTime": "2026-06-13T07:15:00.0000000", "timeZone": "Eastern Standard Time"},
+      "isReminderOn": true,
+      "createdDateTime": "2026-06-12T20:05:00Z",
+      "lastModifiedDateTime": "2026-06-12T20:05:00Z"
+    },
+    {
+      "id": "AAMkAGI1AAA-evt-8a9203",
+      "subject": "Coach AI: Strength - Lower Body",
+      "body": {
+        "contentType": "text",
+        "content": "Plan: 40 min lower body strength session.\n\nIntent: Strength maintenance\nRationale: Weekly lower-body strength session"
+      },
+      "start": {"dateTime": "2026-06-14T17:00:00.0000000", "timeZone": "Eastern Standard Time"},
+      "end": {"dateTime": "2026-06-14T17:40:00.0000000", "timeZone": "Eastern Standard Time"},
+      "isReminderOn": true,
+      "createdDateTime": "2026-06-12T20:06:00Z",
+      "lastModifiedDateTime": "2026-06-12T20:06:00Z"
+    }
+  ]
+}

@@ -8,6 +8,15 @@ wheels/
 data/
 # Virtual environments
 .venv
-.env 
+.env
 .vscode/
 .claude/
+
+# coach install output - local, per-machine/per-path install artifacts
+.coach/
+.mcp.json
+CLAUDE.md
+AGENTS.md
+
+# mkdocs build output
+site/

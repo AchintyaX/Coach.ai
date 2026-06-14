@@ -1,0 +1,41 @@
+{
+  "segment_efforts": [
+    {
+      "segment_id": 6543210,
+      "segment_name": "Riverside Loop",
+      "pr_elapsed_time": 612,
+      "pr_date": "2026-05-28T06:45:00Z",
+      "distance": 2400.0,
+      "average_grade": 0.4
+    },
+    {
+      "segment_id": 6543299,
+      "segment_name": "Hilltop Climb",
+      "pr_elapsed_time": 305,
+      "pr_date": "2026-04-19T07:10:00Z",
+      "distance": 800.0,
+      "average_grade": 6.2
+    }
+  ],
+  "athlete_zones": {
+    "heart_rate": {
+      "custom_zones": true,
+      "zones": [
+        {"min": 0, "max": 130},
+        {"min": 130, "max": 148},
+        {"min": 148, "max": 162},
+        {"min": 162, "max": 175},
+        {"min": 175, "max": -1}
+      ]
+    },
+    "power": {
+      "zones": [
+        {"min": 0, "max": 150},
+        {"min": 150, "max": 200},
+        {"min": 200, "max": 250},
+        {"min": 250, "max": 300},
+        {"min": 300, "max": -1}
+      ]
+    }
+  }
+}

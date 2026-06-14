@@ -1,0 +1,17 @@
+{
+  "userProfilePK": 12345678,
+  "calendarDate": "2026-06-13",
+  "trainingStatus": "PRODUCTIVE",
+  "trainingStatusFeedbackPhrase": "PRODUCTIVE_1",
+  "fitnessTrend": "MAINTAINING",
+  "loadTunnelMin": 250,
+  "loadTunnelMax": 480,
+  "acuteTrainingLoad": 320,
+  "vo2MaxTrend": [
+    {"calendarDate": "2026-05-13", "vo2MaxValue": 47.0},
+    {"calendarDate": "2026-05-27", "vo2MaxValue": 47.3},
+    {"calendarDate": "2026-06-10", "vo2MaxValue": 47.6}
+  ],
+  "vo2MaxPrecise": 47.6,
+  "fitnessAge": 31
+}

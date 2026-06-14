@@ -1,0 +1,21 @@
+{
+  "userProfilePK": 12345678,
+  "calendarDate": "2026-06-13",
+  "timestamp": "2026-06-13T05:42:00.0",
+  "level": "MODERATE",
+  "score": 58,
+  "feedbackLong": "MODERATE_TRAINING_READINESS",
+  "feedbackShort": "GOOD_RECOVERY",
+  "sleepScore": 61,
+  "sleepScoreFactorPercent": 55,
+  "sleepScoreFactorFeedback": "FAIR",
+  "recoveryTime": 9,
+  "recoveryTimeFactorPercent": 60,
+  "recoveryTimeFactorFeedback": "GOOD",
+  "hrvFactorPercent": 45,
+  "hrvFactorFeedback": "UNBALANCED",
+  "hrvWeeklyAverage": 42,
+  "trainingLoadFactorPercent": 70,
+  "trainingLoadFactorFeedback": "OPTIMAL",
+  "acuteLoad": 320
+}
