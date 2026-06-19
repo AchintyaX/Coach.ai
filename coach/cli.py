@@ -47,6 +47,7 @@ import coach.sources  # noqa: F401 - populates registry.SOURCES via side-effects
 from coach.harness.claude import ClaudeHarness
 from coach.harness.codex import CodexHarness
 from coach.scheduling import (
+    ClaudeScheduleResult,
     parse_time_of_day,
     write_claude_scheduled_task,
     write_codex_automation,
@@ -137,17 +138,26 @@ def setup_schedule(
     time_str: str,
     project_dir: Path | None = None,
     home: Path | None = None,
-) -> dict[str, Path]:
-    """Parse ``time_str`` and write all three local-only scheduling artifacts.
+    *,
+    claude_support_dir: Path | None = None,
+    now_ms: int | None = None,
+) -> dict:
+    """Parse ``time_str`` and write all scheduling artifacts.
 
-    Returns a dict mapping artifact name -> written path.
+    Returns a dict with:
+    - ``"claude"``: :class:`ClaudeScheduleResult` (SKILL.md + Desktop JSON upsert)
+    - ``"codex_automation"``: Path to the Codex automation TOML
+    - ``"cron_fallback"``: Path to the launchd plist
     """
     project_dir = project_dir or Path.cwd()
 
     t = parse_time_of_day(time_str)
 
     return {
-        "claude_scheduled_task": write_claude_scheduled_task(t, project_dir, home=home),
+        "claude": write_claude_scheduled_task(
+            t, project_dir, home=home,
+            claude_support_dir=claude_support_dir, now_ms=now_ms,
+        ),
         "codex_automation": write_codex_automation(t, project_dir),
         "cron_fallback": write_cron_fallback(t, project_dir, home=home),
     }
@@ -156,12 +166,18 @@ def setup_schedule(
 def setup_schedule_interactive(
     project_dir: Path | None = None,
     home: Path | None = None,
-) -> dict[str, Path]:
+    *,
+    claude_support_dir: Path | None = None,
+    now_ms: int | None = None,
+) -> dict:
     """Prompt the user for a daily run time, then write scheduling artifacts."""
     time_str = input(
         "What time should I run your daily readiness check + workout generation? "
     )
-    return setup_schedule(time_str, project_dir=project_dir, home=home)
+    return setup_schedule(
+        time_str, project_dir=project_dir, home=home,
+        claude_support_dir=claude_support_dir, now_ms=now_ms,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -276,6 +292,54 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _print_schedule_results(written: dict) -> None:
+    """Print scheduling results with status-aware output for the Claude entry."""
+    for key in ("codex_automation", "cron_fallback"):
+        if key in written:
+            print(f"{key}: {written[key]}")
+
+    claude: ClaudeScheduleResult | None = written.get("claude")
+    if claude is None:
+        return
+
+    print(f"claude_skill_md: {claude.skill_md_path}")
+
+    if claude.registered:
+        print(
+            f"claude_schedule: registered in {claude.tasks_json_path} "
+            f"(id=coach-daily-loop, {claude.action})"
+        )
+        if claude.disabled_ids:
+            ids = ", ".join(f"'{i}'" for i in claude.disabled_ids)
+            print(
+                f"claude_schedule: disabled overlapping routine(s) {ids} — "
+                "the coach daily loop already includes those skills."
+            )
+        if claude.ambiguous:
+            print(
+                f"claude_schedule: note: multiple Claude session schedule files found; "
+                f"registered into the most recently modified one ({claude.tasks_json_path})."
+            )
+        print(
+            "claude_schedule: Restart Claude Desktop if the new schedule does not "
+            "appear or run."
+        )
+    elif claude.reason == "no_desktop_routine":
+        print(
+            "claude_schedule: NOT registered — no Claude Desktop schedule file found. "
+            "Create any scheduled task once in Claude Desktop, then re-run "
+            "`coach setup --schedule`."
+        )
+    elif claude.reason == "json_unreadable":
+        print(
+            "claude_schedule: NOT registered — the Claude Desktop schedule file could "
+            "not be parsed safely; left it untouched. Open Desktop and re-create the "
+            "schedule, or fix the file and re-run."
+        )
+    else:
+        print(f"claude_schedule: NOT registered (reason: {claude.reason})")
+
+
 def _run_setup(args: argparse.Namespace) -> int:
     project_dir = Path.cwd()
 
@@ -300,8 +364,7 @@ def _run_setup(args: argparse.Namespace) -> int:
         except ValueError as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 1
-        for key, path in written.items():
-            print(f"{key}: {path}")
+        _print_schedule_results(written)
         return 0
 
     if args.schedule:
@@ -310,8 +373,7 @@ def _run_setup(args: argparse.Namespace) -> int:
         except ValueError as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 1
-        for key, path in written.items():
-            print(f"{key}: {path}")
+        _print_schedule_results(written)
         return 0
 
     print(

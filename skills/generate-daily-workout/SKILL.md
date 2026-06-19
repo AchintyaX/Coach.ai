@@ -54,19 +54,38 @@ Run this once each morning, after `readiness-check`. Follow these steps in order
        calendar/device. Reserve `create_z2_walk_workout` for genuine walking sessions
        (e.g. recovery walks).
      - Walking (e.g. recovery walk, Z2 walk) → `create_z2_walk_workout`
-     - Strength sessions → `create_strength_workout(name, exercises)`, where each exercise is `{"name": ..., "sets": ..., "reps": ..., "rest_seconds": ...}`. For example:
+     - **Strength sessions → use `upload_workout(workout_data)`, NOT `create_strength_workout`.** The convenience builder `create_strength_workout` only emits `exerciseName` and never sets `category`, which makes every exercise type render as **null** in Garmin Connect. Garmin requires **both** `category` and `exerciseName` (both Garmin FIT enum keys) on each exercise step to classify it. Build the full workout JSON yourself and pass it to `upload_workout` — see the **Garmin Strength Exercise Catalog** section at the bottom of this file for the `category` + `exerciseName` pairs. Model each exercise as a `RepeatGroupDTO` (sets = `numberOfIterations`) wrapping an interval step + a rest step. Skeleton:
        ```
-       create_strength_workout(
-         name="Lower Body Strength A",
-         exercises=[
-           {"name": "Barbell Back Squat", "sets": 4, "reps": 6, "rest_seconds": 120},
-           {"name": "Romanian Deadlift", "sets": 3, "reps": 8, "rest_seconds": 90},
-           {"name": "Walking Lunge", "sets": 3, "reps": 10, "rest_seconds": 60}
-         ]
-       )
+       upload_workout(workout_data={
+         "workoutName": "Hyrox Station — Pull, Carry & Core",
+         "sportType": {"sportTypeId": 5, "sportTypeKey": "strength_training"},
+         "workoutSegments": [{
+           "segmentOrder": 1,
+           "sportType": {"sportTypeId": 5, "sportTypeKey": "strength_training"},
+           "workoutSteps": [{
+             "type": "RepeatGroupDTO", "stepOrder": 1, "numberOfIterations": 3,
+             "endCondition": {"conditionTypeId": 7, "conditionTypeKey": "iterations"},
+             "workoutSteps": [
+               {"type": "ExecutableStepDTO", "stepOrder": 1,
+                "stepType": {"stepTypeId": 3, "stepTypeKey": "interval"},
+                "endCondition": {"conditionTypeId": 10, "conditionTypeKey": "reps"},
+                "endConditionValue": 10.0,
+                "targetType": {"workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target"},
+                "category": "LUNGE", "exerciseName": "WALKING_LUNGE"},
+               {"type": "ExecutableStepDTO", "stepOrder": 2,
+                "stepType": {"stepTypeId": 5, "stepTypeKey": "rest"},
+                "endCondition": {"conditionTypeId": 2, "conditionTypeKey": "time"},
+                "endConditionValue": 60.0,
+                "targetType": {"workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target"}}
+             ]
+           }
+           // ...one RepeatGroupDTO per exercise...
+           ]
+         }]
+       })
        ```
-       Exercise names don't need to match a fixed list — unrecognized names fall back to a generic category with the name preserved, so name exercises naturally.
-     Each call returns `{status, workout_id, name, message}`. Keep the `workout_id` for step 6.
+       End conditions per exercise step: reps (`conditionTypeId: 10`) for rep-based moves; time (`conditionTypeId: 2`, seconds) for holds like planks; distance (`conditionTypeId: 3`, meters) for carries/rows. Rest steps use `stepTypeId: 5`. To prescribe load, add `"weightValue": 24.0` and `"weightUnit": {"unitId": 8, "unitKey": "kilogram", "factor": 1000.0}` to an exercise step.
+     `upload_workout` returns `{status, workout_id, name, message}`. Keep the `workout_id` for step 6.
    - **Strava+Calendar (Degraded):** There's no builder schema — draft the session as **structured free text** for the calendar event's `description` (Google Calendar) or `body` (Outlook Calendar). Use this fixed template every time so the format stays consistent day to day (this is the structured artifact for this path — there is no separate "workout_id"):
      ```
      Session: <intent, e.g. "Z2 aerobic base run">
@@ -112,3 +131,53 @@ Run this once each morning, after `readiness-check`. Follow these steps in order
    Summarize today's session in plain language — sport, intent, and the target/structure — and confirm it's been placed on their calendar/Garmin device.
    - **Garmin (Full) example:** "Today's session: Z2 aerobic base run, 45 min easy, keep HR under 150. It's on your Garmin calendar for today — should show up on your device."
    - **Strava+Calendar (Degraded) example:** "Today's session: Z2 aerobic base run, ~45 min / 7-8 km, conversational pace. I've added it to your calendar with the full structure in the event description."
+
+---
+
+## Garmin Strength Exercise Catalog
+
+> **Garmin (Full) path only.** This section is irrelevant on the Strava+Calendar path, where strength is drafted as free text (see step 5) — ignore it there.
+
+Each exercise step passed to `upload_workout` needs **both** a `category` and an `exerciseName`, and both must be Garmin FIT enum keys (uppercase, underscore-separated) — not natural-language names. The `category` is what Garmin uses to classify and display the exercise type; omit it (as the `create_strength_workout` builder does) and the type shows as **null**. The `exerciseName` is the specific variant within that category.
+
+### Hyrox-relevant exercises
+
+| What you want | `category` | `exerciseName` |
+|---|---|---|
+| Farmer's carry / Farmer's walk | `CARRY` | `FARMERS_WALK` |
+| Goblet squat | `SQUAT` | `GOBLET_SQUAT` |
+| Goblet lunge | `LUNGE` | `GOBLET_LUNGE` |
+| Walking lunge | `LUNGE` | `WALKING_LUNGE` |
+| Renegade row | `ROW` | `RENEGADE_ROW` |
+| Front plank | `PLANK` | `PLANK` |
+| Side plank | `PLANK` | `SIDE_PLANK` |
+| Push-up | `PUSH_UP` | `PUSH_UP` |
+| Pull-up | `PULL_UP` | `PULL_UP` |
+| Kettlebell swing | `HIP_SWING` | `KETTLEBELL_SWING` |
+| Burpee | `CARDIO` | `BURPEE` |
+| Box jump | `PLYO` | `BOX_JUMP` |
+
+> **Not confirmed in the FIT catalog** — these likely have no clean enum and will render generically; use `category: "OTHER"` (and put the real name in the step `description` / workout name) until a valid key is verified: **rowing machine / 500m row**, **wall ball**, **sandbag lunge**. (Rowing is best logged as its own cardio activity, not a strength step.)
+
+### General strength exercises
+
+| What you want | `category` | `exerciseName` |
+|---|---|---|
+| Barbell back squat | `SQUAT` | `BARBELL_SQUAT` |
+| Barbell deadlift | `DEADLIFT` | `BARBELL_DEADLIFT` |
+| Romanian deadlift | `DEADLIFT` | `ROMANIAN_DEADLIFT` |
+| Barbell bench press | `BENCH_PRESS` | `BARBELL_BENCH_PRESS` |
+| Dumbbell shoulder press | `SHOULDER_PRESS` | `DUMBBELL_SHOULDER_PRESS` |
+| Dumbbell biceps curl | `CURL` | `DUMBBELL_BICEPS_CURL` |
+| Bent-over row (dumbbell) | `ROW` | `BENT_OVER_ROW_WITH_DUMBELL` |
+| Dip | `TRICEPS_EXTENSION` | `BODY_WEIGHT_DIP` |
+
+Known-good categories (from the garmin_mcp reference): `BENCH_PRESS`, `PULL_UP`, `CURL`, `SHOULDER_PRESS`, `ROW`, `SQUAT`, `DEADLIFT`, `TRICEPS_EXTENSION`, `PLANK`, `LUNGE`, `CARDIO`.
+
+### Unrecognized exercises
+
+If an exercise has no confirmed FIT key, set `category: "OTHER"` and omit `exerciseName` (or set it to `""`), and put the real name in the step `description` and/or the workout name. It shows as a generic step but stays legible.
+
+### Full catalog
+
+For exercises not listed here, read the garmin_mcp reference resource (`workout://reference/structure`) via `ReadMcpResourceTool`, or check the Garmin FIT SDK profile at https://developer.garmin.com/fit/protocol/ (exercise category/name constants are in the FIT Profile spreadsheet). Verify a key resolves in Garmin Connect before relying on it.

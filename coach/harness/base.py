@@ -57,7 +57,7 @@ TOOL_PLACEHOLDERS: dict[str, dict[str, str]] = {
         "strava_calendar": "get-activities, get-activity-streams",
     },
     "structured_workout_create": {
-        "garmin": "create_walk_run_workout / create_z2_walk_workout / create_strength_workout",
+        "garmin": "create_walk_run_workout / create_z2_walk_workout / upload_workout (strength)",
         "strava_calendar": "create-event",
     },
     "schedule_workout": {

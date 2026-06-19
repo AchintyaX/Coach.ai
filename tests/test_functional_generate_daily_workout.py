@@ -1,7 +1,7 @@
 """Functional matrix row: generate-daily-workout (techspec section 13).
 
 - Garmin (Full): ``{{tool: structured_workout_create}}`` resolves to
-  ``create_walk_run_workout / create_z2_walk_workout / create_strength_workout``,
+  ``create_walk_run_workout / create_z2_walk_workout / upload_workout (strength)``,
   and ``{{tool: schedule_workout}}`` resolves to ``schedule_workout / schedule_week``.
 - Strava+Calendar (Degraded): ``{{tool: structured_workout_create}}`` resolves
   to ``create-event``, and ``{{tool: schedule_workout}}`` resolves to
@@ -28,7 +28,7 @@ def test_garmin_path_resolves_structured_workout_create_and_schedule():
 
     assert "{{tool:" not in rendered
     assert (
-        "create_walk_run_workout / create_z2_walk_workout / create_strength_workout"
+        "create_walk_run_workout / create_z2_walk_workout / upload_workout (strength)"
         in rendered
     )
     assert "schedule_workout / schedule_week" in rendered
@@ -44,7 +44,7 @@ def test_strava_calendar_path_resolves_create_event_degraded():
     assert "covered by create-event above — no separate call" in rendered
 
     # Garmin-only resolutions for these two placeholders must not appear.
-    assert "create_walk_run_workout / create_z2_walk_workout / create_strength_workout" not in rendered
+    assert "create_walk_run_workout / create_z2_walk_workout / upload_workout (strength)" not in rendered
     assert "schedule_workout / schedule_week" not in rendered
 
 

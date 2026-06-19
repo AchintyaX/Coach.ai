@@ -34,7 +34,8 @@ Garmin is the only source that covers **both** the `metrics` and `workout_calend
 |---|---|
 | `create_walk_run_workout` | `{status, workout_id, name, message}` |
 | `create_z2_walk_workout` | `{status, workout_id, name, message}` |
-| `create_strength_workout` | `{status, workout_id, name, message}` |
+| `create_strength_workout` | `{status, workout_id, name, message}` — **deprecated for our use; see below** |
+| `upload_workout` | `{status, workout_id, name, message}` — raw full-JSON upload, used for strength |
 | `schedule_workout` | Confirmation of calendar placement |
 | `schedule_week` | Batch-schedules a week, idempotent |
 | `get_workouts` | List of saved workout definitions |
@@ -46,32 +47,52 @@ This allowlist is ~15% of the 110+ tools the server exposes — set via
 [Installation](../installation.md)). The complementary `GARMIN_DISABLED_TOOLS` exists for fine-grained exclusions if
 a future tool needs to be added back selectively.
 
-## Strength workouts are fully supported
+## Strength workouts — use `upload_workout`, not `create_strength_workout`
 
-Coach AI can build **strength** workouts, not just runs, through this MCP — confirmed from `workout_builders.py`:
+Coach AI builds **strength** workouts through this MCP, but **not** via the `create_strength_workout` convenience
+builder. That builder's `build_strength_json` (`workout_builders.py:176`) emits only `exerciseName` on each step and
+**never sets `category`** — and Garmin requires *both* `category` and `exerciseName` (FIT enum keys) to classify an
+exercise. Without `category`, every exercise type renders as **null** in Garmin Connect. This was verified against a
+live upload.
+
+Instead, build the full workout JSON and send it through the raw **`upload_workout`** tool, which accepts a
+`category` field. Confirmed from `workouts.py:624` — strength steps require:
+
+- `"category"`: exercise category enum (e.g. `"SQUAT"`, `"LUNGE"`, `"PLANK"`, `"ROW"`, `"CARRY"`, `"DEADLIFT"`)
+- `"exerciseName"`: specific variant enum (e.g. `"BARBELL_SQUAT"`, `"WALKING_LUNGE"`, `"FARMERS_WALK"`)
+- `"weightValue"` / `"weightUnit"` (optional): prescribed load
 
 ```python
-create_strength_workout(
-    name: str,
-    exercises: list[dict[str, Any]]   # each: {name, sets, reps, rest_seconds}
-) -> dict   # {"status": "success", "workout_id": ..., "name": ..., "message": "..."}
-
-# example call
-create_strength_workout(
-  name="Lower Body Strength A",
-  exercises=[
-    {"name": "Barbell Back Squat", "sets": 4, "reps": 6, "rest_seconds": 120},
-    {"name": "Romanian Deadlift", "sets": 3, "reps": 8, "rest_seconds": 90},
-    {"name": "Walking Lunge", "sets": 3, "reps": 10, "rest_seconds": 60}
-  ]
-)
+upload_workout(workout_data={
+  "workoutName": "Hyrox Station — Pull, Carry & Core",
+  "sportType": {"sportTypeId": 5, "sportTypeKey": "strength_training"},
+  "workoutSegments": [{
+    "segmentOrder": 1,
+    "sportType": {"sportTypeId": 5, "sportTypeKey": "strength_training"},
+    "workoutSteps": [
+      {"type": "ExecutableStepDTO", "stepOrder": 1,
+       "stepType": {"stepTypeId": 3, "stepTypeKey": "interval"},
+       "endCondition": {"conditionTypeId": 10, "conditionTypeKey": "reps"},
+       "endConditionValue": 10.0,
+       "targetType": {"workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target"},
+       "category": "LUNGE", "exerciseName": "WALKING_LUNGE"},
+      # ...rest step (stepTypeId 5) + one interval step per exercise...
+    ]
+  }]
+})
 ```
 
-Internally this builds a Garmin `strength_training` workout via `build_strength_json`. Exercise names are matched
-against Garmin's exercise catalog where possible; **unrecognized names fall back to a generic "Other" category with
-the original name preserved** in `exerciseName` — so the agent can name exercises freely (e.g. "Bulgarian Split
-Squat", "Tempo Push-up") without being limited to a fixed list. `create_walk_run_workout` and
-`create_z2_walk_workout` cover running/cardio the same way.
+The exact `category` + `exerciseName` pairs for our common Hyrox and strength moves live in the **Garmin Strength
+Exercise Catalog** section of `generate-daily-workout/SKILL.md`. `create_walk_run_workout` and
+`create_z2_walk_workout` still cover running/cardio fine — the builder problem is specific to strength.
+
+> **Setup dependency:** `upload_workout` must be listed in `GARMIN_ENABLED_TOOLS` in `.mcp.json`, and the MCP server
+> must be restarted after adding it (the allowlist is read only at server startup).
+
+See the **Garmin Strength Exercise Catalog** section in `generate-daily-workout/SKILL.md` for the key→name mapping
+table covering common Hyrox exercises. For the full Garmin FIT catalog, consult the garmin_mcp resource
+`workout://reference/structure` (via `ReadMcpResourceTool`) or the Garmin FIT SDK profile docs at
+https://developer.garmin.com/fit/protocol/.
 
 ## Create → schedule flow
 

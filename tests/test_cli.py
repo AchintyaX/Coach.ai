@@ -86,39 +86,78 @@ def test_setup_source_outlook_calendar_stores_tenant_and_client_id(tmp_path):
 # ---------------------------------------------------------------------------
 
 
+def _seed_support_tasks_json(support_dir: Path, tasks: list | None = None) -> Path:
+    """Helper: create a minimal scheduled-tasks.json in a tmp Application Support tree."""
+    p = support_dir / "claude-code-sessions" / "acct" / "sub" / "scheduled-tasks.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"scheduledTasks": tasks or [], "recordedSkips": {}}))
+    return p
+
+
 def test_setup_schedule_time_writes_all_artifacts(tmp_path):
     project_dir = tmp_path / "project"
     project_dir.mkdir()
     home = tmp_path / "home"
+    support = tmp_path / "support"
+    tasks_json = _seed_support_tasks_json(support)
 
-    written = cli.setup_schedule("7:00 AM", project_dir=project_dir, home=home)
+    written = cli.setup_schedule(
+        "7:00 AM", project_dir=project_dir, home=home,
+        claude_support_dir=support, now_ms=123_000,
+    )
 
     claude_path = home / ".claude" / "scheduled-tasks" / "coach-daily-loop" / "SKILL.md"
     codex_path = project_dir / ".codex" / "automations" / "daily-coach-loop.toml"
     cron_path = home / "Library" / "LaunchAgents" / "com.coachai.dailyloop.plist"
 
-    assert written["claude_scheduled_task"] == claude_path
+    # Return shape
+    assert written["claude"].skill_md_path == claude_path
     assert written["codex_automation"] == codex_path
     assert written["cron_fallback"] == cron_path
 
+    # Files exist
     assert claude_path.exists()
     assert codex_path.exists()
     assert cron_path.exists()
 
-    assert 'schedule: "0 7 * * *"' in claude_path.read_text()
+    # SKILL.md must use the real Desktop format — no schedule/mode
+    skill_content = claude_path.read_text()
+    assert "name: coach-daily-loop" in skill_content
+    assert "schedule:" not in skill_content
+    assert "mode:" not in skill_content
+
+    # Codex TOML still carries the cron (unchanged)
     assert 'schedule = "0 7 * * *"' in codex_path.read_text()
+
+    # scheduled-tasks.json must have the registered entry
+    data = json.loads(tasks_json.read_text())
+    entry = next(
+        (e for e in data["scheduledTasks"] if e["id"] == "coach-daily-loop"), None
+    )
+    assert entry is not None
+    assert entry["cronExpression"] == "0 7 * * *"
+    assert entry["permissionMode"] == "auto"
+    assert entry["createdAt"] == 123_000
+
+    # Result flags
+    assert written["claude"].registered is True
+    assert written["claude"].action == "created"
 
 
 def test_setup_schedule_interactive_uses_input(tmp_path, monkeypatch):
     project_dir = tmp_path / "project"
     project_dir.mkdir()
     home = tmp_path / "home"
+    support = tmp_path / "support"
+    _seed_support_tasks_json(support)
 
     monkeypatch.setattr("builtins.input", lambda prompt="": "7:00 AM")
 
-    written = cli.setup_schedule_interactive(project_dir=project_dir, home=home)
+    written = cli.setup_schedule_interactive(
+        project_dir=project_dir, home=home, claude_support_dir=support,
+    )
 
-    assert written["claude_scheduled_task"].exists()
+    assert written["claude"].skill_md_path.exists()
     assert written["codex_automation"].exists()
     assert written["cron_fallback"].exists()
 
@@ -281,6 +320,16 @@ def test_main_setup_source_garmin(tmp_path, monkeypatch):
 
 def test_main_setup_schedule_time(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
+    # Prevent the CLI from touching real ~/Library/Application Support or ~/.claude
+    import coach.scheduling as _sched
+    monkeypatch.setattr(
+        _sched, "locate_scheduled_tasks_json",
+        lambda claude_support_dir=None: _sched.LocateResult(path=None, all_paths=[]),
+    )
+    monkeypatch.setattr(
+        _sched, "write_claude_skill_md",
+        lambda project_dir, **kw: tmp_path / "SKILL.md",
+    )
     code = cli.main(["setup", "--schedule-time", "7:00 AM"])
     assert code == 0
 

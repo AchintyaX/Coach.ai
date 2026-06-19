@@ -72,14 +72,26 @@ coach setup --schedule-time "7:00 AM"   # non-interactive
 
 This writes **local-only** scheduling artifacts (your credentials never leave the machine):
 
-- **Claude Code** → `~/.claude/scheduled-tasks/coach-daily-loop/SKILL.md`
+- **Claude Code** →
+  - `~/.claude/scheduled-tasks/coach-daily-loop/SKILL.md` — minimal prompt file
+    (frontmatter: `name` + `description` only; no `schedule`/`mode` fields).
+  - `~/Library/Application Support/Claude/claude-code-sessions/…/scheduled-tasks.json` —
+    the cron entry Desktop actually executes, upserted with `permissionMode: "auto"` and
+    `approvedPermissions` pre-seeded from `.mcp.json` so unattended Garmin tool calls
+    don't stall. Requires Claude Desktop to be running; falls back to SKILL.md-only with
+    instructions if no Desktop schedule file exists yet.
 - **Codex Desktop** → `./.codex/automations/daily-coach-loop.toml`
 - **Codex CLI without Desktop** → a launchd plist (macOS) / crontab entry running `codex exec --full-auto "..."`
 
 !!! warning "Local-only by design"
-    A run is skipped if this machine is asleep or the relevant app isn't open at the scheduled time — it simply
-    runs at the next opportunity. The cloud/remote scheduling modes offered by Claude Code and Codex CLI are not
-    used, because that sandbox doesn't have this machine's Garmin/Strava/calendar OAuth caches.
+    A run is skipped if this machine is asleep or Claude Desktop isn't open at the scheduled
+    time — it simply runs at the next opportunity. The cloud/remote scheduling modes offered
+    by Claude Code and Codex CLI are not used, because that sandbox doesn't have this
+    machine's Garmin/Strava/calendar OAuth caches.
+
+!!! tip "Restart Desktop after first run"
+    If the new `coach-daily-loop` schedule doesn't appear under **Routines** immediately,
+    restart Claude Desktop — it reads `scheduled-tasks.json` at startup.
 
 ## Verifying the install
 
@@ -101,7 +113,7 @@ This writes **local-only** scheduling artifacts (your credentials never leave th
 | MCP servers | `./.mcp.json` → `mcpServers.<name>` | `~/.codex/config.toml` → `[mcp_servers.<name>]` |
 | Skills | `./.claude/skills/<skill>/SKILL.md` | `./.codex/skills/<skill>/SKILL.md` + `[skills.config.N]` |
 | Web research tools | `./.claude/settings.json` → `permissions.allow` incl. `WebSearch`, `WebFetch`, `Bash` | `~/.codex/config.toml` → `[tools]` `web_search = true` (Bash/exec is native) |
-| Daily loop | `~/.claude/scheduled-tasks/coach-daily-loop/SKILL.md` | `./.codex/automations/daily-coach-loop.toml` or launchd/cron |
+| Daily loop | `~/.claude/scheduled-tasks/coach-daily-loop/SKILL.md` + Desktop's `scheduled-tasks.json` (cron + `permissionMode:auto`) | `./.codex/automations/daily-coach-loop.toml` or launchd/cron |
 
 Local data — never committed, created on first run:
 

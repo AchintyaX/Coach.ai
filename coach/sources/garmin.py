@@ -19,10 +19,17 @@ _READ_TOOLS = [
 ]
 
 # Write tools: workout creation and calendar scheduling.
+#
+# Note on strength: ``create_strength_workout`` is the convenience builder, but
+# it omits the ``category`` field Garmin needs to classify each exercise, so
+# strength exercises render with a null type. Strength sessions therefore go
+# through ``upload_workout`` (raw JSON with both ``category`` + ``exerciseName``)
+# — see generate-daily-workout/SKILL.md. The builder stays enabled for back-compat.
 _WRITE_TOOLS = [
     "create_walk_run_workout",
     "create_z2_walk_workout",
     "create_strength_workout",
+    "upload_workout",
     "schedule_workout",
     "schedule_week",
     "get_workouts",
